@@ -197,6 +197,16 @@ pub async fn fetch<R: Runtime>(
     let method = Method::from_bytes(method.as_bytes())?;
 
     let mut headers = HeaderMap::new();
+    // Inject global headers that were set via `AppHandle::set_http_header`.
+    {
+        let global_headers = state.headers.lock().unwrap();
+        for (name, value) in global_headers.iter() {
+            // Per‑request header takes precedence over a global header.
+            if !headers.contains_key(name) {
+                headers.insert(name.clone(), value.clone());
+            }
+        }
+    }
     for (h, v) in headers_raw {
         let name = HeaderName::from_str(&h)?;
         #[cfg(not(feature = "unsafe-headers"))]

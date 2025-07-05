@@ -68,7 +68,7 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     /// Creates a new scope from the scope configuration.
-    pub(crate) fn new(allowed: Vec<&'a Arc<Entry>>, denied: Vec<&'a Arc<Entry>>) -> Self {
+    pub fn new(allowed: Vec<&'a Arc<Entry>>, denied: Vec<&'a Arc<Entry>>) -> Self {
         Self { allowed, denied }
     }
 

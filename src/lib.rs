@@ -9,6 +9,7 @@ use tauri::{
     plugin::{Builder, TauriPlugin},
     Manager, Runtime,
 };
+use http::{HeaderMap};
 
 pub use error::{Error, Result};
 
@@ -17,6 +18,9 @@ mod error;
 #[cfg(feature = "cookies")]
 mod reqwest_cookie_store;
 mod scope;
+mod header;
+
+pub use header::HttpHeaderExt;
 
 #[cfg(feature = "cookies")]
 const COOKIES_FILENAME: &str = ".cookies";
@@ -24,6 +28,7 @@ const COOKIES_FILENAME: &str = ".cookies";
 pub(crate) struct Http {
     #[cfg(feature = "cookies")]
     cookies_jar: std::sync::Arc<crate::reqwest_cookie_store::CookieStoreMutex>,
+    headers: std::sync::Arc<std::sync::Mutex<HeaderMap>>,
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
@@ -58,6 +63,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             let state = Http {
                 #[cfg(feature = "cookies")]
                 cookies_jar: std::sync::Arc::new(cookies_jar),
+                headers: std::sync::Arc::new(std::sync::Mutex::new(HeaderMap::new())),
             };
 
             app.manage(state);
